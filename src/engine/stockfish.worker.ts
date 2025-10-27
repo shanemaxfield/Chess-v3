@@ -66,11 +66,15 @@ function initStockfish() {
   debug('Starting Stockfish initialization...')
 
   try {
+    // Get absolute URL for Stockfish script
+    const stockfishUrl = new URL('/stockfish/stockfish-17.1-lite-single-03e3232.js', self.location.href).href
+    debug(`Absolute Stockfish URL: ${stockfishUrl}`)
+
     // Create a blob with classic worker code that loads Stockfish
     const workerCode = `
       // This is a classic worker that can use importScripts
       console.log('[NESTED WORKER] Loading Stockfish via importScripts...');
-      importScripts('/stockfish/stockfish-17.1-lite-single-03e3232.js');
+      importScripts('${stockfishUrl}');
       console.log('[NESTED WORKER] importScripts completed');
 
       let stockfishEngine = null;
