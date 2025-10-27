@@ -77,12 +77,26 @@ function initStockfish() {
       importScripts('${stockfishUrl}');
       console.log('[NESTED WORKER] importScripts completed');
 
+      // Debug: Check what was loaded
+      console.log('[NESTED WORKER] typeof Stockfish:', typeof Stockfish);
+      console.log('[NESTED WORKER] typeof STOCKFISH:', typeof STOCKFISH);
+      console.log('[NESTED WORKER] Globals with "stock":', Object.keys(self).filter(k => k.toLowerCase().includes('stock')));
+
       let stockfishEngine = null;
 
-      // Initialize Stockfish
+      // Initialize Stockfish with locateFile to help it find WASM
       if (typeof Stockfish !== 'undefined') {
         console.log('[NESTED WORKER] Found Stockfish function, calling it...');
-        const result = Stockfish();
+
+        // Provide locateFile to tell Stockfish where to find the WASM file
+        const result = Stockfish({
+          locateFile: (file) => {
+            console.log('[NESTED WORKER] locateFile called for:', file);
+            const url = '${stockfishUrl}'.replace(/\\.js$/, '.wasm');
+            console.log('[NESTED WORKER] Returning WASM URL:', url);
+            return url;
+          }
+        });
 
         if (result && typeof result.then === 'function') {
           console.log('[NESTED WORKER] Stockfish() returned a promise, waiting...');
